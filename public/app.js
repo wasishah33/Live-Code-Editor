@@ -104,6 +104,13 @@ function initializeEditors() {
         value: getDefaultJS()
     });
 
+    // PHP Editor
+    editors.php = monaco.editor.create(document.getElementById('php-editor'), {
+        ...editorOptions,
+        language: 'php',
+        value: getDefaultPHP()
+    });
+
     // Set up change listeners
     Object.values(editors).forEach(editor => {
         editor.onDidChangeModelContent(() => {
@@ -157,6 +164,30 @@ console.log('Hello from CodingApp!');
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded successfully!');
 });`;
+}
+
+function getDefaultPHP() {
+    return `<?php
+// Your PHP code here
+echo "Hello from PHP!";
+
+// Example: Basic PHP functionality
+$name = "CodingApp";
+$version = "1.0.0";
+
+echo "<h2>Welcome to " . $name . " v" . $version . "</h2>";
+
+// Example: Working with arrays
+$colors = ["red", "green", "blue"];
+echo "<ul>";
+foreach ($colors as $color) {
+    echo "<li style='color: " . $color . ";'>" . ucfirst($color) . "</li>";
+}
+echo "</ul>";
+
+// Example: Date and time
+echo "<p>Current time: " . date('Y-m-d H:i:s') . "</p>";
+?>`;
 }
 
 // Authentication functions
@@ -339,6 +370,7 @@ async function loadProject(projectId) {
             editors.html.setValue(project.html || getDefaultHTML());
             editors.css.setValue(project.css || getDefaultCSS());
             editors.js.setValue(project.js || getDefaultJS());
+            editors.php.setValue(project.php || getDefaultPHP());
             
             updatePreview();
             markAsSaved();
@@ -362,6 +394,7 @@ async function createNewProject() {
     editors.html.setValue(getDefaultHTML());
     editors.css.setValue(getDefaultCSS());
     editors.js.setValue(getDefaultJS());
+    editors.php.setValue(getDefaultPHP());
     
     updatePreview();
     markAsSaved();
@@ -378,7 +411,8 @@ async function saveProject() {
             title: currentProject.title,
             html: editors.html.getValue(),
             css: editors.css.getValue(),
-            js: editors.js.getValue()
+            js: editors.js.getValue(),
+            php: editors.php.getValue()
         };
 
         const response = await fetch(`/api/projects/${currentProject.id}`, {
@@ -408,7 +442,8 @@ async function saveNewProject(title) {
             title: title,
             html: editors.html.getValue(),
             css: editors.css.getValue(),
-            js: editors.js.getValue()
+            js: editors.js.getValue(),
+            php: editors.php.getValue()
         };
 
         const response = await fetch('/api/projects', {
@@ -437,12 +472,19 @@ async function saveNewProject(title) {
 }
 
 // Preview functions
-function updatePreview() {
+async function updatePreview() {
     const html = editors.html.getValue();
     const css = editors.css.getValue();
     const js = editors.js.getValue();
+    const php = editors.php.getValue();
 
-    const fullHTML = `<!DOCTYPE html>
+    // Check if PHP code is present
+    if (php && php.trim() !== '' && php.includes('<?php')) {
+        // Execute PHP code on server
+        await executePHP(html, css, js, php);
+    } else {
+        // Regular HTML preview
+        const fullHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -456,9 +498,85 @@ function updatePreview() {
 </body>
 </html>`;
 
-    const blob = new Blob([fullHTML], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    previewFrame.src = url;
+        const blob = new Blob([fullHTML], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        previewFrame.src = url;
+    }
+}
+
+// Execute PHP code on server
+async function executePHP(html, css, js, php) {
+    try {
+        const response = await fetch('/api/execute-php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({
+                html: html,
+                css: css,
+                js: js,
+                php: php
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.text();
+            const blob = new Blob([result], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            previewFrame.src = url;
+        } else {
+            const error = await response.text();
+            console.error('PHP execution error:', error);
+            // Show error in preview
+            const errorHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PHP Error</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .error { background: #ffebee; border: 1px solid #f44336; padding: 15px; border-radius: 4px; color: #c62828; }
+        pre { background: #fafafa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h2>PHP Execution Error</h2>
+    <div class="error">
+        <pre>${error}</pre>
+    </div>
+</body>
+</html>`;
+            const blob = new Blob([errorHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            previewFrame.src = url;
+        }
+    } catch (error) {
+        console.error('PHP execution failed:', error);
+        // Show error in preview
+        const errorHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PHP Error</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .error { background: #ffebee; border: 1px solid #f44336; padding: 15px; border-radius: 4px; color: #c62828; }
+    </style>
+</head>
+<body>
+    <h2>PHP Execution Failed</h2>
+    <div class="error">
+        <p>Failed to execute PHP code. Please check your syntax and try again.</p>
+        <p>Error: ${error.message}</p>
+    </div>
+</body>
+</html>`;
+        const blob = new Blob([errorHTML], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        previewFrame.src = url;
+    }
 }
 
 // Save status management

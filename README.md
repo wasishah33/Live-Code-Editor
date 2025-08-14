@@ -9,6 +9,7 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![HTML5](https://img.shields.io/badge/HTML5-5.0+-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![CSS3](https://img.shields.io/badge/CSS3-3.0+-blue.svg)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![PHP](https://img.shields.io/badge/PHP-7.4+-purple.svg)](https://www.php.net/)
 [![SQLite](https://img.shields.io/badge/SQLite-3.0+-lightgrey.svg)](https://www.sqlite.org/)
 [![Monaco Editor](https://img.shields.io/badge/Monaco%20Editor-0.44+-purple.svg)](https://microsoft.github.io/monaco-editor/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -18,8 +19,9 @@ A modern, web-based code editor with live preview functionality. Built with Node
 ## Features
 
 ### ✨ Core Features
-- **Live Code Editor**: Write HTML, CSS, and JavaScript with syntax highlighting
+- **Live Code Editor**: Write HTML, CSS, JavaScript, and PHP with syntax highlighting
 - **Real-time Preview**: See your changes instantly in the preview window
+- **PHP Execution**: Server-side PHP code execution with live preview
 - **Project Management**: Save, load, and organize your coding projects
 - **User Authentication**: Secure login/registration system
 - **Export Functionality**: Download your projects as HTML files
@@ -28,7 +30,7 @@ A modern, web-based code editor with live preview functionality. Built with Node
 ### 🎨 User Interface
 - **Modern Dark Theme**: Professional VS Code-like interface
 - **Responsive Design**: Works on desktop and mobile devices
-- **Tabbed Editor**: Switch between HTML, CSS, and JavaScript
+- **Tabbed Editor**: Switch between HTML, CSS, JavaScript, and PHP
 - **Project Sidebar**: Easy access to all your saved projects
 - **Fullscreen Preview**: Expand preview for better viewing
 
@@ -45,6 +47,7 @@ Before running this application, make sure you have:
 
 - **Node.js** (version 14 or higher)
 - **npm** (comes with Node.js)
+- **PHP** (version 7.4 or higher) - Required for PHP code execution
 
 ## Installation
 
@@ -103,24 +106,35 @@ codingapp/
 - `DELETE /api/projects/:id` - Delete project
 - `GET /api/projects/:id/export` - Export project as HTML
 
+### PHP Execution
+- `POST /api/execute-php` - Execute PHP code and return HTML output
+
 ## Usage Guide
 
 ### Getting Started
 
 1. **Register/Login**: Create an account or login with existing credentials
 2. **Create Project**: Click "New Project" to start coding
-3. **Write Code**: Use the tabbed editor to write HTML, CSS, and JavaScript
+3. **Write Code**: Use the tabbed editor to write HTML, CSS, JavaScript, and PHP
 4. **Live Preview**: See your changes instantly in the preview panel
 5. **Save Project**: Click "Save" to store your project (auto-save also available)
 6. **Export**: Download your project as an HTML file
 
 ### Editor Features
 
-- **Syntax Highlighting**: Automatic highlighting for HTML, CSS, and JavaScript
+- **Syntax Highlighting**: Automatic highlighting for HTML, CSS, JavaScript, and PHP
 - **Auto-completion**: Intelligent code suggestions
 - **Error Detection**: Real-time error highlighting
 - **Line Numbers**: Easy navigation with line numbers
 - **Word Wrap**: Automatic text wrapping for better readability
+
+### PHP Development
+
+- **Server-side Execution**: PHP code runs on the server and displays output in preview
+- **Error Handling**: PHP errors are displayed in the preview window
+- **HTML Integration**: PHP code can be mixed with HTML, CSS, and JavaScript
+- **Real-time Preview**: See PHP output immediately as you type
+- **Security**: PHP execution is sandboxed and has timeout protection
 
 ### Project Management
 
@@ -180,6 +194,12 @@ The application uses SQLite for data storage. The database file (`codingapp.db`)
    - Check your internet connection
    - Ensure CDN is accessible
    - Try refreshing the page
+
+4. **PHP execution not working**
+   - Ensure PHP is installed and accessible from command line
+   - Check if `php` command is in your system PATH
+   - Verify PHP version is 7.4 or higher
+   - Check server logs for PHP execution errors
 
 ### Performance Tips
 

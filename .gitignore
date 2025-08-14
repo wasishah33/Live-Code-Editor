@@ -226,8 +226,12 @@ Temporary Items
 # Project specific
 uploads/
 downloads/
-temp/
 cache/
+
+# Temporary files for PHP execution
+temp/
+*.tmp
+*.temp
 
 # Backup files
 *.bak

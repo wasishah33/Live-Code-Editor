@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { exec } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -37,6 +38,7 @@ db.serialize(() => {
     html TEXT DEFAULT '',
     css TEXT DEFAULT '',
     js TEXT DEFAULT '',
+    php TEXT DEFAULT '',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id)
@@ -159,32 +161,32 @@ app.get('/api/projects/:id', authenticateToken, (req, res) => {
 
 // Create new project
 app.post('/api/projects', authenticateToken, (req, res) => {
-  const { title, html, css, js } = req.body;
+  const { title, html, css, js, php } = req.body;
   
   if (!title) {
     return res.status(400).json({ error: 'Project title is required' });
   }
 
   db.run(
-    'INSERT INTO projects (user_id, title, html, css, js) VALUES (?, ?, ?, ?, ?)',
-    [req.user.id, title, html || '', css || '', js || ''],
+    'INSERT INTO projects (user_id, title, html, css, js, php) VALUES (?, ?, ?, ?, ?, ?)',
+    [req.user.id, title, html || '', css || '', js || '', php || ''],
     function(err) {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
       }
-      res.json({ id: this.lastID, title, html, css, js });
+      res.json({ id: this.lastID, title, html, css, js, php });
     }
   );
 });
 
 // Update project
 app.put('/api/projects/:id', authenticateToken, (req, res) => {
-  const { title, html, css, js } = req.body;
+  const { title, html, css, js, php } = req.body;
   const projectId = req.params.id;
 
   db.run(
-    'UPDATE projects SET title = ?, html = ?, css = ?, js = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?',
-    [title, html, css, js, projectId, req.user.id],
+    'UPDATE projects SET title = ?, html = ?, css = ?, js = ?, php = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?',
+    [title, html, css, js, php, projectId, req.user.id],
     function(err) {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
@@ -192,7 +194,7 @@ app.put('/api/projects/:id', authenticateToken, (req, res) => {
       if (this.changes === 0) {
         return res.status(404).json({ error: 'Project not found' });
       }
-      res.json({ id: projectId, title, html, css, js });
+      res.json({ id: projectId, title, html, css, js, php });
     }
   );
 });
@@ -212,6 +214,81 @@ app.delete('/api/projects/:id', authenticateToken, (req, res) => {
       res.json({ message: 'Project deleted successfully' });
     }
   );
+});
+
+// Execute PHP code
+app.post('/api/execute-php', authenticateToken, (req, res) => {
+  const { html, css, js, php } = req.body;
+  
+  // Create a temporary PHP file
+  const tempDir = path.join(__dirname, 'temp');
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir);
+  }
+  
+  const tempFile = path.join(tempDir, `temp_${Date.now()}.php`);
+  
+  // Create the complete PHP file with HTML, CSS, JS, and PHP
+  const phpContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHP Preview</title>
+    <style>
+${css || ''}
+    </style>
+</head>
+<body>
+${html || ''}
+<?php
+${php || ''}
+?>
+    <script>
+${js || ''}
+    </script>
+</body>
+</html>`;
+
+  try {
+    fs.writeFileSync(tempFile, phpContent);
+    
+    // Execute PHP file
+    const { exec } = require('child_process');
+    exec(`php "${tempFile}"`, { timeout: 10000 }, (error, stdout, stderr) => {
+      // Clean up temp file
+      try {
+        fs.unlinkSync(tempFile);
+      } catch (cleanupError) {
+        console.error('Failed to cleanup temp file:', cleanupError);
+      }
+      
+      if (error) {
+        console.error('PHP execution error:', error);
+        return res.status(500).send(`PHP Execution Error: ${error.message}\n\nOutput: ${stdout}\n\nErrors: ${stderr}`);
+      }
+      
+      if (stderr) {
+        console.error('PHP stderr:', stderr);
+        return res.status(500).send(`PHP Error: ${stderr}\n\nOutput: ${stdout}`);
+      }
+      
+      res.setHeader('Content-Type', 'text/html');
+      res.send(stdout);
+    });
+  } catch (error) {
+    // Clean up temp file if it exists
+    try {
+      if (fs.existsSync(tempFile)) {
+        fs.unlinkSync(tempFile);
+      }
+    } catch (cleanupError) {
+      console.error('Failed to cleanup temp file:', cleanupError);
+    }
+    
+    console.error('File write error:', error);
+    res.status(500).send(`File Error: ${error.message}`);
+  }
 });
 
 // Export project as ZIP
