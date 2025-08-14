@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodingApp - Live Code Editor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>Loading CodingApp...</h2>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="auth-title">Login</h2>
+                <span class="close" onclick="closeAuthModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="auth-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group" id="email-group" style="display: none;">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <p class="auth-switch">
+                    <span id="auth-switch-text">Don't have an account?</span>
+                    <a href="#" id="auth-switch-link">Register</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div id="project-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Project</h2>
+                <span class="close" onclick="closeProjectModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="project-form">
+                    <div class="form-group">
+                        <label for="project-title">Project Title</label>
+                        <input type="text" id="project-title" name="title" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="logo">CodingApp</h1>
+                <div class="project-info">
+                    <span id="current-project-title">Untitled Project</span>
+                    <span id="save-status" class="save-status">Saved</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="new-project-btn" class="btn btn-secondary">
+                    <i class="fas fa-plus"></i> New Project
+                </button>
+                <button id="save-btn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button id="export-btn" class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <div class="user-menu">
+                    <button id="user-menu-btn" class="btn btn-text">
+                        <i class="fas fa-user"></i>
+                        <span id="username-display">User</span>
+                    </button>
+                    <div class="dropdown-menu" id="user-dropdown">
+                        <a href="#" id="projects-link">
+                            <i class="fas fa-folder"></i> My Projects
+                        </a>
+                        <a href="#" id="logout-link">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Projects Sidebar -->
+        <div id="projects-sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>My Projects</h3>
+                <button class="close-sidebar" onclick="toggleProjectsSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div id="projects-list" class="projects-list">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Editor Tabs -->
+            <div class="editor-tabs">
+                <button class="tab-btn active" data-tab="html">
+                    <i class="fab fa-html5"></i> HTML
+                </button>
+                <button class="tab-btn" data-tab="css">
+                    <i class="fab fa-css3-alt"></i> CSS
+                </button>
+                <button class="tab-btn" data-tab="js">
+                    <i class="fab fa-js-square"></i> JavaScript
+                </button>
+            </div>
+
+            <!-- Editor Container -->
+            <div class="editor-container">
+                <div id="html-editor" class="editor active"></div>
+                <div id="css-editor" class="editor"></div>
+                <div id="js-editor" class="editor"></div>
+            </div>
+
+            <!-- Preview Container -->
+            <div class="preview-container">
+                <div class="preview-header">
+                    <h3>Live Preview</h3>
+                    <div class="preview-controls">
+                        <button id="refresh-preview" class="btn btn-small">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button id="fullscreen-preview" class="btn btn-small">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-frame-container">
+                    <iframe id="preview-frame" class="preview-frame"></iframe>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,5 +1,9 @@
 # CodingApp - Live Code Editor
 
+<div align="center">
+  <img src="public/banner.png" alt="CodingApp Banner" width="100%">
+</div>
+
 [![Node.js](https://img.shields.io/badge/Node.js-18.0+-green.svg)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-4.18+-blue.svg)](https://expressjs.com/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)

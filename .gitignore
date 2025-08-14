@@ -80,7 +80,6 @@ dist
 
 # Gatsby files
 .cache/
-public
 
 # Storybook build outputs
 .out
@@ -169,11 +168,9 @@ jspm_packages/
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
-# Database files
-*.db
+# Database files (keep codingapp.db for development, but ignore other DB files)
 *.sqlite
 *.sqlite3
-codingapp.db
 
 # IDE and Editor files
 .vscode/
@@ -227,7 +224,6 @@ Temporary Items
 .apdisk
 
 # Project specific
-projects/
 uploads/
 downloads/
 temp/
