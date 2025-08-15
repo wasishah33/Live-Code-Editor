@@ -229,7 +229,11 @@ app.post('/api/execute-php', authenticateToken, (req, res) => {
   const tempFile = path.join(tempDir, `temp_${Date.now()}.php`);
   
   // Create the complete PHP file with HTML, CSS, JS, and PHP
-  const phpContent = `<!DOCTYPE html>
+  const phpContent = `<?php
+// PHP code execution
+${php || ''}
+?>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -241,9 +245,6 @@ ${css || ''}
 </head>
 <body>
 ${html || ''}
-<?php
-${php || ''}
-?>
     <script>
 ${js || ''}
     </script>
@@ -252,6 +253,10 @@ ${js || ''}
 
   try {
     fs.writeFileSync(tempFile, phpContent);
+    
+    // Debug: Log the PHP content for troubleshooting
+    console.log('Generated PHP file content:');
+    console.log(phpContent);
     
     // Execute PHP file
     const { exec } = require('child_process');
@@ -265,12 +270,17 @@ ${js || ''}
       
       if (error) {
         console.error('PHP execution error:', error);
+        console.error('PHP stdout:', stdout);
+        console.error('PHP stderr:', stderr);
         return res.status(500).send(`PHP Execution Error: ${error.message}\n\nOutput: ${stdout}\n\nErrors: ${stderr}`);
       }
       
-      if (stderr) {
+      if (stderr && stderr.trim() !== '') {
         console.error('PHP stderr:', stderr);
-        return res.status(500).send(`PHP Error: ${stderr}\n\nOutput: ${stdout}`);
+        // Only treat as error if stderr contains actual errors (not just warnings)
+        if (stderr.includes('Parse error') || stderr.includes('Fatal error') || stderr.includes('Warning:')) {
+          return res.status(500).send(`PHP Error: ${stderr}\n\nOutput: ${stdout}`);
+        }
       }
       
       res.setHeader('Content-Type', 'text/html');
