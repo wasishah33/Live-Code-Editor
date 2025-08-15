@@ -122,8 +122,8 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Editor Tabs -->
-            <div class="editor-tabs">
+            <!-- Language Tabs -->
+            <div class="language-tabs">
                 <button class="tab-btn active" data-tab="html">
                     <i class="fab fa-html5"></i> HTML
                 </button>
@@ -138,29 +138,50 @@
                 </button>
             </div>
 
-            <!-- Editor Container -->
-            <div class="editor-container">
-                <div id="html-editor" class="editor active"></div>
-                <div id="css-editor" class="editor"></div>
-                <div id="js-editor" class="editor"></div>
-                <div id="php-editor" class="editor"></div>
-            </div>
-
-            <!-- Preview Container -->
-            <div class="preview-container">
-                <div class="preview-header">
-                    <h3>Live Preview</h3>
-                    <div class="preview-controls">
-                        <button id="refresh-preview" class="btn btn-small">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                        <button id="fullscreen-preview" class="btn btn-small">
-                            <i class="fas fa-expand"></i>
-                        </button>
+            <!-- Control Bar -->
+            <div class="control-bar">
+                <div class="control-left">
+                    <button id="run-btn" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Run
+                    </button>
+                </div>
+                <div class="control-right">
+                    <div class="auto-refresh-control">
+                        <label for="auto-refresh-toggle" class="toggle-label">
+                            <i class="fas fa-sync-alt"></i> Auto Refresh
+                        </label>
+                        <input type="checkbox" id="auto-refresh-toggle" class="toggle-input" checked>
+                        <label for="auto-refresh-toggle" class="toggle-slider"></label>
                     </div>
                 </div>
-                <div class="preview-frame-container">
-                    <iframe id="preview-frame" class="preview-frame"></iframe>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Editor Container -->
+                <div class="editor-container">
+                    <div id="html-editor" class="editor active"></div>
+                    <div id="css-editor" class="editor"></div>
+                    <div id="js-editor" class="editor"></div>
+                    <div id="php-editor" class="editor"></div>
+                </div>
+
+                <!-- Preview Container -->
+                <div class="preview-container">
+                    <div class="preview-header">
+                        <h3>Live Preview</h3>
+                        <div class="preview-controls">
+                            <button id="refresh-preview" class="btn btn-small">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button id="fullscreen-preview" class="btn btn-small">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preview-frame-container">
+                        <iframe id="preview-frame" class="preview-frame"></iframe>
+                    </div>
                 </div>
             </div>
         </main>

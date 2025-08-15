@@ -6,6 +6,7 @@ let authToken = localStorage.getItem('authToken');
 let isAuthenticated = false;
 let saveTimeout = null;
 let hasUnsavedChanges = false;
+let autoRefreshEnabled = true;
 
 // DOM elements
 const loadingScreen = document.getElementById('loading-screen');
@@ -26,6 +27,8 @@ const userDropdown = document.getElementById('user-dropdown');
 const projectsSidebar = document.getElementById('projects-sidebar');
 const projectsList = document.getElementById('projects-list');
 const previewFrame = document.getElementById('preview-frame');
+const runBtn = document.getElementById('run-btn');
+const autoRefreshToggle = document.getElementById('auto-refresh-toggle');
 
 // Initialize the application
 async function init() {
@@ -114,8 +117,21 @@ function initializeEditors() {
     // Set up change listeners
     Object.values(editors).forEach(editor => {
         editor.onDidChangeModelContent(() => {
-            updatePreview();
+            if (autoRefreshEnabled) {
+                updatePreview();
+            }
             markAsUnsaved();
+            
+            // Auto-save functionality
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+            }
+            
+            saveTimeout = setTimeout(() => {
+                if (currentProject && hasUnsavedChanges) {
+                    saveProject();
+                }
+            }, 2000); // Auto-save after 2 seconds of inactivity
         });
     });
 }
@@ -715,6 +731,15 @@ document.getElementById('fullscreen-preview').addEventListener('click', () => {
     previewFrame.requestFullscreen();
 });
 
+// Run button
+runBtn.addEventListener('click', updatePreview);
+
+// Auto-refresh toggle
+autoRefreshToggle.addEventListener('change', (e) => {
+    autoRefreshEnabled = e.target.checked;
+    console.log('Auto-refresh:', autoRefreshEnabled ? 'enabled' : 'disabled');
+});
+
 // Close dropdowns when clicking outside
 document.addEventListener('click', (e) => {
     if (!e.target.closest('.user-menu')) {
@@ -722,25 +747,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Auto-save functionality
-function setupAutoSave() {
-    Object.values(editors).forEach(editor => {
-        editor.onDidChangeModelContent(() => {
-            if (saveTimeout) {
-                clearTimeout(saveTimeout);
-            }
-            
-            saveTimeout = setTimeout(() => {
-                if (currentProject && hasUnsavedChanges) {
-                    saveProject();
-                }
-            }, 2000); // Auto-save after 2 seconds of inactivity
-        });
-    });
-}
 
-// Initialize auto-save
-setupAutoSave();
 
 // Handle beforeunload to warn about unsaved changes
 window.addEventListener('beforeunload', (e) => {
